@@ -12,6 +12,7 @@ pthread_mutex_t stopLock;
 typedef struct{
     read_stream* distanceInput;
     double brakeDistance;
+    Service_configuration* config;
 } CheckDistanceData;
 
 typedef struct{
@@ -55,8 +56,11 @@ void* check_distance(void* arg){
         ProtobufMsgs__SensorOutput* data = read_pb(d.distanceInput);
         if(data == NULL){
             printf("Error reading stream\n");
-            return 1;
+            return NULL;
         }
+
+        // check for new tuning values
+        d.brakeDistance = *(get_float_value(d.config, "brake-distance"));
 
         // Get distance data
         ProtobufMsgs__DistanceSensorOutput* distanceData = (data->distanceoutput);
@@ -151,6 +155,7 @@ int user_program(Service service, Service_configuration *configuration){
         return 1;
     }
     d.distanceInput = distanceInput;
+    d.config = configuration;
 
     pthread_mutex_init(&stopLock, NULL);
 
@@ -207,7 +212,7 @@ int user_program(Service service, Service_configuration *configuration){
         ProtobufMsgs__CameraSensorOutput__Trajectory__Point** trajectoryPoints = trajectory->points;
 
         if(trajectoryPoints == NULL){
-            printf("Error with trajectoryPoints\n");
+            printf("no trajectory points\n");
             continue;
         }
 

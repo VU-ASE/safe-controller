@@ -15,7 +15,7 @@ void *configuration_thread(void *arg) {
         printf("Failed to create ZMQ context: %d\n", zmq_errno());
         return NULL;
     }
-    void *socket = zmq_socket(context, ZMQ_REQ);
+    void *socket = zmq_socket(context, ZMQ_SUB);
     if (socket == NULL) {
         printf("Failed to create ZMQ socket %d\n", zmq_errno());
         zmq_ctx_destroy(context);
@@ -30,7 +30,7 @@ void *configuration_thread(void *arg) {
         zmq_ctx_destroy(context);
         return NULL;
     }
-
+    
     // Subscribe to all messages
     res = zmq_setsockopt(socket, ZMQ_SUBSCRIBE, "", 0);
     if (res != 0) {

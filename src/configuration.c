@@ -2,9 +2,9 @@
 
 Service_configuration new_service_configuration(Service service) {
     Service_configuration config;
-    config.float_values = hashtable_create(16, false);
-    config.string_values = hashtable_create(16, false);
-    config.tunable = hashtable_create(16, false);
+    config.float_values = hashtable_create(16, true);
+    config.string_values = hashtable_create(16, true);
+    config.tunable = hashtable_create(16, true);
     config.rwlock = (pthread_rwlock_t *)malloc(sizeof(pthread_rwlock_t));
     pthread_rwlock_init(config.rwlock, NULL);
     config.last_update = 0;
