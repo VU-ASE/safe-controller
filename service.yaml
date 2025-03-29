@@ -2,11 +2,11 @@ name: safe-controller
 author: vu-ase
 source: https://github.com/vu-ase/safe-controller
 version: 1.0.0
-description: the authority on all steering decisions
+description: This controller will make sure to stop in-front of an obstacle using the distance sensor
 
 commands:
   build: make build
-  run: ./main
+  run: ./bin/safe-controller
 
 
 inputs:

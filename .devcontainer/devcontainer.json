@@ -1,7 +1,8 @@
 {
     "name": "ASE-safe-controller",
     "build": {
-        "dockerfile": "Dockerfile"
+        "dockerfile": "Dockerfile",
+        "context": ".."
     },
     "customizations": {
         "vscode": {
