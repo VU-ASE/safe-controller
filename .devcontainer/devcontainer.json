@@ -1,5 +1,5 @@
 {
-    "name": "ASE-roverlib-c",
+    "name": "ASE-safe-controller",
     "build": {
         "dockerfile": "Dockerfile"
     },
