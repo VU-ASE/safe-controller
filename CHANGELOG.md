@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/VU-ASE/safe-controller/compare/v1.0.1...v1.0.2) (2025-03-30)
+
+
+### Bug Fixes
+
+* remove build, don't support build actions for C yet ([3421d0b](https://github.com/VU-ASE/safe-controller/commit/3421d0b3d559df1ffec05e005d88f3a479bec91c))
+
 ## [1.0.1](https://github.com/VU-ASE/safe-controller/compare/v1.0.0...v1.0.1) (2025-03-30)
 
 
