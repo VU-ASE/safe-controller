@@ -5,7 +5,8 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-bool stop = false;
+// gradually stop. 0 is a full stop. 1 is drive as normally
+double relativeSpeed = 1.0f;
 pthread_mutex_t stopLock;
 
 // Small struct to wrap data used in check_distance thread
@@ -69,14 +70,22 @@ void* check_distance(void* arg){
             continue;
         }
         
-        // Don't lock if the variable doesn't change, this is the only place where this variable is edited.
-        if((distanceData->distance < d.brakeDistance) != stop){
-            pthread_mutex_lock(&stopLock);
-            stop = distanceData->distance < d.brakeDistance;
-            printf("Changed stop: %d\n", stop);
-            pthread_mutex_unlock(&stopLock);
+        
+        pthread_mutex_lock(&stopLock);
+        if(distanceData->distance < d.brakeDistance){
+            relativeSpeed = 0;
+        }
+        else if(distanceData->distance > (d.brakeDistance * 2)){
+            relativeSpeed = 1;
+        }
+        else{
+            printf("Special\n");
+            relativeSpeed = (distanceData->distance - d.brakeDistance) / d.brakeDistance;
         }
 
+        printf("Changed stop: %f\n", relativeSpeed);
+        pthread_mutex_unlock(&stopLock);
+        
     }
 }
 
@@ -208,27 +217,28 @@ int user_program(Service service, Service_configuration *configuration){
             printf("kp: %f, kd: %f, ki: %f. Updated PID controller", *kp, *kd, *ki);
         }
 
+        double steerValue;
+        bool changeSteer = false;
         // Get the first trajectory point
         ProtobufMsgs__CameraSensorOutput__Trajectory__Point** trajectoryPoints = trajectory->points;
-
+        
         if(trajectoryPoints == NULL){
             printf("no trajectory points\n");
-            continue;
         }
-
-        if(trajectoryPoints[0] == NULL){
+        else if(trajectoryPoints[0] == NULL){
             printf("Received sensor data that had no trajectory points\n");
-            continue;
         }
-		
-        // This is the middle of the longest consecutive slice, it should be in the middle of the image (horizontally)
-        ProtobufMsgs__CameraSensorOutput__Trajectory__Point* firstPoint = trajectoryPoints[0];
-
-        double steerValue = get_steer_value(&pid, (double)desiredTrajectoryPoint, firstPoint->x, 0.1);
+		else{
+            // This is the middle of the longest consecutive slice, it should be in the middle of the image (horizontally)
+            ProtobufMsgs__CameraSensorOutput__Trajectory__Point* firstPoint = trajectoryPoints[0];
+            changeSteer = true;
+            steerValue = get_steer_value(&pid, (double)desiredTrajectoryPoint, firstPoint->x, 0.1);
+        }
+        
 
         // Write message to actuator
         ProtobufMsgs__SensorOutput msg = PROTOBUF_MSGS__SENSOR_OUTPUT__INIT;
-
+        
         msg.sensorid = 2;
         msg.timestamp = current_time_millis();
         msg.status = 0;
@@ -237,17 +247,14 @@ int user_program(Service service, Service_configuration *configuration){
 
         // Acquire lock to read stop value
         pthread_mutex_lock(&stopLock);
-        if(!stop){
-            controllerOutput.leftthrottle = (float)(*speed);
-            controllerOutput.rightthrottle = (float)(*speed);
-        }
-        else{
-            controllerOutput.leftthrottle = 0;
-            controllerOutput.rightthrottle = 0;
-        }
-        pthread_mutex_unlock(&stopLock);
+        
+        controllerOutput.leftthrottle = (float)(*speed) * (float)relativeSpeed;
+        controllerOutput.rightthrottle = (float)(*speed) * (float)relativeSpeed;
 
-        controllerOutput.steeringangle = (float)(steerValue);
+        pthread_mutex_unlock(&stopLock);
+        if(changeSteer == true){
+            controllerOutput.steeringangle = (float)(steerValue);
+        }
         
         controllerOutput.frontlights = 0;
         controllerOutput.fanspeed = 0;
