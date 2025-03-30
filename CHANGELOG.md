@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/VU-ASE/safe-controller/compare/v1.0.0...v1.0.1) (2025-03-30)
+
+
+### Bug Fixes
+
+* updated actions ([cf1639d](https://github.com/VU-ASE/safe-controller/commit/cf1639d1c97f05e1d3b2c4bc3dce6b2e346b2701))
+
 ## 1.0.0 (2025-03-29)
 
 
