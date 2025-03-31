@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/VU-ASE/safe-controller/compare/v1.0.2...v1.1.0) (2025-03-31)
+
+
+### Features
+
+* chill steering (lower kp) ([dbadfc7](https://github.com/VU-ASE/safe-controller/commit/dbadfc7ac34a1701bfd5fa5d04b9de17b3187684))
+
 ## [1.0.2](https://github.com/VU-ASE/safe-controller/compare/v1.0.1...v1.0.2) (2025-03-30)
 
 
